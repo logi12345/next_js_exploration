@@ -10,8 +10,8 @@ import {
 } from "slate-react";
 import styled from "styled-components";
 import { CodeElement, DefaultElement, Leaf } from "./TextComponents";
-import { ChromePicker } from "react-color";
-
+import { HexAlphaColorPicker } from "react-colorful";
+import icon from "text_editor_icons/image/imagesmode.svg";
 const SlateEditor = () => {
   const [editor] = useState(() => withReact(createEditor()));
   const [value, setValue] = useState<Descendant[] | null>(null);
@@ -100,19 +100,7 @@ const SlateEditor = () => {
   };
 
   const onClose = () => setPicker(false);
-  const popover = {
-    position: "absolute",
-    paddingTop: "50px",
-    paddingLeft: "5px",
-    zIndex: "2",
-  };
-  const cover = {
-    position: "fixed",
-    top: "0px",
-    right: "0px",
-    bottom: "0px",
-    left: "0px",
-  };
+  const [color, setColor] = useState("#aabbcc");
 
   if (!value) return <p>Loading</p>;
   if (!iconList) return <p>waiting for icons</p>;
@@ -136,19 +124,44 @@ const SlateEditor = () => {
             {Object.keys(iconList).map((item, key) => {
               if (iconList[item] === "format" && !exceptions?.includes(item)) {
                 return (
-                  <div style={{ display: "flex", flexDirection: "column" }}>
-                    <Button key={key} onMouseDown={mouseEventDictionary[item]}>
+                  <div
+                    key={key}
+                    style={{ display: "flex", flexDirection: "column" }}
+                  >
+                    <Button onMouseDown={mouseEventDictionary[item]}>
                       <img
-                        style={{ width: "25px", height: "auto" }}
+                        style={{
+                          width: "25px",
+                          height: "auto",
+                        }}
                         src={item}
                       />
                     </Button>
                     {displayPicker &&
                     item ===
                       "text_editor_icons/format/format_color_text.svg" ? (
-                      <div style={popover}>
-                        <div style={cover} onClick={onClose} />
-                        <ChromePicker />
+                      <div
+                        style={{
+                          position: "absolute",
+                          paddingTop: "50px",
+                          paddingLeft: "5px",
+                          zIndex: "2",
+                        }}
+                      >
+                        <div
+                          style={{
+                            position: "fixed",
+                            top: "0px",
+                            right: "0px",
+                            bottom: "0px",
+                            left: "0px",
+                          }}
+                          onClick={onClose}
+                        />
+                        <HexAlphaColorPicker
+                          color={color}
+                          onChange={setColor}
+                        />
                       </div>
                     ) : null}
                   </div>
