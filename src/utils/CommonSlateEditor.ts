@@ -28,28 +28,12 @@ const CustomEditor = {
     return !!match;
   },
 
-  getFontSize(editor: Editor) {
-    let x = editor.marks;
-    // const [match] = Editor.nodes(editor, {
-    //   match: (n) => {
-    //     n.size !== null;
-    //     x = n.size;
-    //     return n.size !== null;
-    //   },
-    // });
-
-    console.log(x);
-
-    // editor.addMark("size", "24px");
-
-    console.log(editor);
-    // return Editor.marks(editor.).size;
-    return editor.children;
-
-    // const x = Editor.leaf(editor)
-    // match.values()
-    // console.log(match);
-    // return match;
+  isUnderlineBlockActive(editor: Editor) {
+    const [match] = Editor.nodes(editor, {
+      match: (n) => n.underlined === true,
+      universal: true,
+    });
+    return !!match;
   },
 
   toggleBoldMark(editor: Editor) {
@@ -80,6 +64,15 @@ const CustomEditor = {
     );
   },
 
+  toggleUnderlined(editor: Editor) {
+    const isUnderlined = CustomEditor.isUnderlineBlockActive(editor);
+    Transforms.setNodes(
+      editor,
+      { underlined: isUnderlined ? null : true },
+      { match: (n) => Text.isText(n), split: true }
+    );
+  },
+
   serialise(v: Node[]) {
     return v.map((n) => Node.string(n)).join("\n");
   },
@@ -91,20 +84,36 @@ const CustomEditor = {
       } as Descendant;
     });
   },
+  getTextSize(editor: Editor) {
+    let size = Editor.marks(editor);
+
+    console.log(size);
+    return size?.size;
+  },
 
   increaseTextSize(editor: Editor) {
-    const fontSize = CustomEditor.getFontSize(editor);
-    // let increased_fontsize = "16px";
-    // if (fontSize) {
-    //   let newsize = parseInt(fontSize.slice(0, -2));
-    //   increased_fontsize = `${newsize + 2}px`;
-    // }
-    // console.log(fontSize);
-    // Transforms.setNodes(
-    //   editor,
-    //   { size: increased_fontsize },
-    //   { match: (n) => Element.isElement(n) && Editor.isBlock(editor, n) }
-    // );
+    const textSize = CustomEditor.getTextSize(editor);
+    let increasedSize = parseInt(textSize.slice(0, -2)) + 2;
+    console.log(increasedSize);
+    Transforms.setNodes(
+      editor,
+      { size: `${increasedSize}px` },
+      { match: (n) => Text.isText(n), split: true }
+    );
+    console.log(editor.children);
+  },
+
+  decreaseTextSize(editor: Editor) {
+    const textSize = CustomEditor.getTextSize(editor);
+    let decreasedSize = parseInt(textSize.slice(0, -2));
+    decreasedSize = decreasedSize - 2 < 0 ? 0 : decreasedSize - 2;
+    console.log(decreasedSize);
+    Transforms.setNodes(
+      editor,
+      { size: `${decreasedSize}px` },
+      { match: (n) => Text.isText(n), split: true }
+    );
+    console.log(editor.children);
   },
 };
 

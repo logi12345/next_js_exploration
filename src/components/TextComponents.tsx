@@ -25,7 +25,8 @@ const Leaf: React.FC<RenderLeafProps> = ({ attributes, children, leaf }) => {
       style={{
         fontWeight: leaf.bold ? "bold" : "normal",
         fontStyle: leaf.italic ? "italic" : "normal",
-        // fontSize: leaf.size,
+        fontSize: leaf.size,
+        textDecorationLine: leaf.underlined ? "underline" : "normal",
       }}
     >
       {children}

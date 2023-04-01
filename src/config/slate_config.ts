@@ -6,6 +6,8 @@ type CustomText = {
   bold?: boolean | null;
   italic?: boolean | null;
   type?: "paragraph" | "code";
+  size: string;
+  underlined?: boolean | null;
   // size: string | number;
 };
 
@@ -14,6 +16,8 @@ export type ParagraphElement = {
   children: CustomText[];
   bold?: boolean | null;
   italic?: boolean | null;
+  size?: "string";
+  underlined?: boolean | null;
   // size: string | number;
 };
 
@@ -22,6 +26,8 @@ export type CodeElement = {
   children: CustomText[];
   bold?: boolean | null;
   italic?: boolean | null;
+  size?: "string";
+  underlined?: boolean | null;
   // size: string | number;
 };
 
@@ -29,6 +35,8 @@ interface CustomBaseEditor extends BaseEditor {
   bold?: boolean | null;
   type: "paragraph" | "code";
   italic?: boolean | null;
+  size?: "string";
+  underlined?: boolean | null;
   // size: string | number;
 }
 export type CustomElement = ParagraphElement | CodeElement;

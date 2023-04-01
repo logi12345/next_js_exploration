@@ -10,11 +10,15 @@ import {
 } from "slate-react";
 import styled from "styled-components";
 import { CodeElement, DefaultElement, Leaf } from "./TextComponents";
+import { ChromePicker } from "react-color";
 
 const SlateEditor = () => {
   const [editor] = useState(() => withReact(createEditor()));
   const [value, setValue] = useState<Descendant[] | null>(null);
   const [iconList, setIconList] = useState<{ [key: string]: string }>();
+  const [exceptions, setExceptions] = useState<string[] | null>();
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [displayPicker, setPicker] = useState<boolean>(false);
 
   const fetchData = useCallback(async () => {
     const data = await fetch("JSON/icon_path_list.JSON", {
@@ -28,6 +32,10 @@ const SlateEditor = () => {
   }, []);
 
   useEffect(() => {
+    setExceptions([
+      "text_editor_icons/image/imagesmode.svg",
+      "text_editor_icons/format/code_blocks_FILL0.svg",
+    ]);
     fetchData();
   }, []);
 
@@ -39,7 +47,7 @@ const SlateEditor = () => {
       : [
           {
             type: "paragraph",
-            children: [{ text: "A line of text in a paragraph" }],
+            children: [{ text: "A line of text in a paragraph", size: "24px" }],
           },
         ];
 
@@ -71,7 +79,39 @@ const SlateEditor = () => {
     "text_editor_icons/size/text_increase.svg": (e) => {
       e.preventDefault();
       CustomEditor.increaseTextSize(editor);
+      // CustomEditor.increaseTextSize(editor);
     },
+    "text_editor_icons/format/format_italic.svg": (e) => {
+      e.preventDefault();
+      CustomEditor.toggleItalicMark(editor);
+    },
+    "text_editor_icons/size/text_decrease.svg": (e) => {
+      e.preventDefault();
+      CustomEditor.decreaseTextSize(editor);
+    },
+    "text_editor_icons/format/format_underlined.svg": (e) => {
+      e.preventDefault();
+      CustomEditor.toggleUnderlined(editor);
+    },
+    "text_editor_icons/format/format_color_text.svg": (e) => {
+      e.preventDefault();
+      setPicker(!displayPicker);
+    },
+  };
+
+  const onClose = () => setPicker(false);
+  const popover = {
+    position: "absolute",
+    paddingTop: "50px",
+    paddingLeft: "5px",
+    zIndex: "2",
+  };
+  const cover = {
+    position: "fixed",
+    top: "0px",
+    right: "0px",
+    bottom: "0px",
+    left: "0px",
   };
 
   if (!value) return <p>Loading</p>;
@@ -86,7 +126,6 @@ const SlateEditor = () => {
         );
         if (isAstChange) {
           const content = JSON.stringify(v);
-          console.log(v);
           localStorage.setItem("consent", content);
         }
       }}
@@ -94,21 +133,34 @@ const SlateEditor = () => {
       <Container>
         <ButtonToolbar>
           <ButtonGroupContainer>
-            {Object.keys(iconList).map((item) => {
-              if (iconList[item] === "format") {
+            {Object.keys(iconList).map((item, key) => {
+              if (iconList[item] === "format" && !exceptions?.includes(item)) {
                 return (
-                  <Button onMouseDown={mouseEventDictionary[item]}>
-                    <img style={{ width: "25px", height: "auto" }} src={item} />
-                  </Button>
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    <Button key={key} onMouseDown={mouseEventDictionary[item]}>
+                      <img
+                        style={{ width: "25px", height: "auto" }}
+                        src={item}
+                      />
+                    </Button>
+                    {displayPicker &&
+                    item ===
+                      "text_editor_icons/format/format_color_text.svg" ? (
+                      <div style={popover}>
+                        <div style={cover} onClick={onClose} />
+                        <ChromePicker />
+                      </div>
+                    ) : null}
+                  </div>
                 );
               }
             })}
           </ButtonGroupContainer>
           <ButtonGroupContainer>
-            {Object.keys(iconList).map((item) => {
+            {Object.keys(iconList).map((item, key) => {
               if (iconList[item] === "size") {
                 return (
-                  <Button onMouseDown={mouseEventDictionary[item]}>
+                  <Button key={key} onMouseDown={mouseEventDictionary[item]}>
                     <img style={{ width: "25px", height: "auto" }} src={item} />
                   </Button>
                 );
@@ -116,10 +168,10 @@ const SlateEditor = () => {
             })}
           </ButtonGroupContainer>
           <ButtonGroupContainer>
-            {Object.keys(iconList).map((item) => {
+            {Object.keys(iconList).map((item, key) => {
               if (iconList[item] === "justify") {
                 return (
-                  <Button onMouseDown={mouseEventDictionary[item]}>
+                  <Button key={key} onMouseDown={mouseEventDictionary[item]}>
                     <img style={{ width: "25px", height: "auto" }} src={item} />
                   </Button>
                 );
@@ -127,10 +179,10 @@ const SlateEditor = () => {
             })}
           </ButtonGroupContainer>
           <ButtonGroupContainer>
-            {Object.keys(iconList).map((item) => {
+            {Object.keys(iconList).map((item, key) => {
               if (iconList[item] === "bullet") {
                 return (
-                  <Button onMouseDown={mouseEventDictionary[item]}>
+                  <Button key={key} onMouseDown={mouseEventDictionary[item]}>
                     <img style={{ width: "25px", height: "auto" }} src={item} />
                   </Button>
                 );
@@ -138,10 +190,10 @@ const SlateEditor = () => {
             })}
           </ButtonGroupContainer>
           <ButtonGroupContainer>
-            {Object.keys(iconList).map((item) => {
-              if (iconList[item] === "image") {
+            {Object.keys(iconList).map((item, key) => {
+              if (iconList[item] === "image" && !exceptions?.includes(item)) {
                 return (
-                  <Button onMouseDown={mouseEventDictionary[item]}>
+                  <Button key={key} onMouseDown={mouseEventDictionary[item]}>
                     <img style={{ width: "25px", height: "auto" }} src={item} />
                   </Button>
                 );
@@ -151,8 +203,9 @@ const SlateEditor = () => {
           {/* {iconList} */}
           {/* <Button onMouseDown={toggleBoldMark}>Make Bold</Button> */}
         </ButtonToolbar>
+        {/* <ColourModal showModal={showModal} setShowModal={setShowModal} /> */}
         <Editable
-          style={{ background: "#F65431", borderRadius: "25px" }}
+          style={{ background: "#F5F5F5", borderRadius: "5px" }}
           renderElement={renderElement}
           renderLeaf={renderLeaf}
           onKeyDown={(event) => {
